@@ -1,0 +1,69 @@
+name,unit,type,biomarkerId
+Chromium,nmol/L,Mineral,BIO_001
+Cobalt,nmol/L,Mineral,BIO_002
+Iron frozen,umol/L,Iron Levels,BIO_003
+UIBC,umol/L,Iron Levels,BIO_004
+Total Iron Binding Capacity,umol/L,Iron Levels,BIO_005
+Transferrin Saturation,%,Iron Levels,BIO_006
+Glycohemoglobin,%,Blood Sugar,BIO_007
+Cotinine,ng/mL,Metabolite,BIO_008
+Hydroxycotinine,ng/mL,Metabolite,BIO_009
+Blood lead,umol/L,Heavy Metals,BIO_010
+Blood cadmium,nmol/L,Heavy Metals,BIO_011
+Blood mercury,nmol/L,Heavy Metals,BIO_012
+Blood selenium,umol/L,Heavy Metals,BIO_013
+Blood manganese,nmol/L,Heavy Metals,BIO_014
+Alpha-carotene,umol/L,Carotenoids,BIO_015
+Alpha-crypotoxanthin,umol/L,Carotenoids,BIO_016
+Trans-beta-carotene,umol/L,Carotenoids,BIO_017
+Cis-beta-carotene,umol/L,Carotenoids,BIO_018
+Beta-cryptoxanthin,umol/L,Carotenoids,BIO_019
+Gamma-tocopherol,umol/L,Tocopherols,BIO_020
+Lutein and zeaxanthin,umol/L,Carotenoids and Retinoids,BIO_021
+Trans-lycopene,umol/L,Carotenoids and Retinoids,BIO_022
+Retinyl palmitate,umol/L,Carotenoids and Retinoids,BIO_023
+Retinyl stearate,umol/L,Carotenoids and Retinoids,BIO_024
+Total Lycopene,umol/L,Carotenoids and Retinoids,BIO_025
+Retinol,umol/L,Carotenoids and Retinoids,BIO_026
+Alpha-tocopherol,umol/L,Tocopherols,BIO_027
+Blood Urea Nitrogen,mg/dL,Waste byproduct,BIO_028
+Chloride,mmol/L,Electrolytes,BIO_029
+Creatinine,mg/dL,Chemical compound,BIO_030
+Iron,ug/dL,Iron Levels,BIO_031
+Osmolality,mmol/Kg,Electrolyte Concentration,BIO_032
+Phosphorus,mg/dL,Mineral,BIO_033
+Potassium,mmol/L,Electrolytes,BIO_034
+Sodium,mmol/L,Electrolytes,BIO_035
+Total Bilirubin,mg/dL,Pigment,BIO_036
+Total Calcium,mg/dL,Electrolytes,BIO_037
+Uric Acid,mg/dL,Waste Byproduct,BIO_038
+Total Cholesterol,mmol/L,Cholesterol,BIO_039
+Vitamin C,umol/L,Vitamin,BIO_040
+25-hydroxyvitamin D2 + D3,nmol/L,Vitamin,BIO_041
+Fasting Glucose,mmol/L,Blood Sugar,BIO_042
+White blood cell count,1000 cells/uL,Blood Cells,BIO_043
+Lymphocyte,%,Blood Cells,BIO_044
+Monocyte,%,Blood Cells,BIO_045
+Segmented neutrophils,%,Blood Cells,BIO_046
+Eosinophils,%,Blood Cells,BIO_047
+Basophils,%,Blood Cells,BIO_048
+RBC count,million cells/uL,Blood Cells,BIO_049
+Hematocrit,%,Blood Cells,BIO_050
+Mean cell volume,fL,Blood Cells,BIO_051
+Mean cell hemoglobin,pg,Blood Cells,BIO_052
+Mean Cell Hgb Conc.,g/dL,Blood Cells,BIO_053
+Red cell distribution width,%,Blood Cells,BIO_054
+Platelet count,1000 cells/uL,Blood Cells,BIO_055
+Mean platelet volume,fL,Blood Cells,BIO_056
+Nucleated RBCs,,Blood Cells,BIO_057
+A/G Ratio,,Composite Biomarkers,BIO_058
+Non_HDL Ratio,,Composite Biomarkers,BIO_059
+LDL_HDL Ratio,,Composite Biomarkers,BIO_060
+Total Cholestrol_HDL Ratio,,Composite Biomarkers,BIO_061
+Triglyceride_HDL Ratio,,Composite Biomarkers,BIO_062
+Lymphocyte_Monocyte Ratio,,Composite Biomarkers,BIO_063
+Neutrophil_Lymphocyte Ratio,,Composite Biomarkers,BIO_064
+Platelet_Lymphocyte Ratio,,Composite Biomarkers,BIO_065
+Platelet_WBC Ratio,,Composite Biomarkers,BIO_066
+Lymphocyte_C-Reactive Protein Ratio,,Composite Biomarkers,BIO_067
+Systemic Immune‐inflammation Index (SII),,Composite Biomarkers,BIO_068

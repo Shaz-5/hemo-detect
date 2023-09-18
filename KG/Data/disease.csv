@@ -1,0 +1,45 @@
+name,type,mondoId
+Congestive_Heart_Failure,Cardiovascular Disease,MONDO:0005009
+Coronary_Heart_Disease,Cardiovascular Disease,MONDO:0005010
+Stroke,Cardiovascular Disease,MONDO:0005098
+Thyroid_Problem,Endocrine Disorder,MONDO:0003240
+Liver_Condition,Liver Disease,MONDO:0005154
+Jaundice,Liver Disease,HP:0000952
+Cancer,Cancer,MONDO:0004992
+Anemia,Blood Disorder,MONDO:0002280
+Heart_Attack,Cardiovascular Disease,MONDO:0005068
+Hepatitis C,Liver Disease,MONDO:0005231
+Gestational diabetes,Diabetes,MONDO:0005406
+Diabetes,Diabetes,MONDO:0005015
+Weak/Failing kidneys,Kidney Disease,MONDO:0001106
+Hepatitis A antibody,Liver Disease,MONDO:0005790
+Hepatitis B core antibody,Liver Disease,MONDO:0005344
+Bladder Cancer,Cancer,MONDO:0001187
+Blood Cancer,Cancer,MONDO:0002334
+Bone Cancer,Cancer,MONDO:0002129
+Brain Cancer,Cancer,MONDO:0001657
+Breast Cancer,Cancer,MONDO:0007254
+Cervical Cancer,Cancer,MONDO:0002974
+Colon Cancer,Cancer,MONDO:0005575
+Esophageal Cancer,Cancer,MONDO:0007576
+Gallbladder Cancer,Cancer,MONDO:0005411
+Kidney Cancer,Cancer,MONDO:0002367
+Larynx/Windpipe Cancer,Cancer,MONDO:0002352
+Leukemia,Cancer,MONDO:0005059
+Liver Cancer,Cancer,MONDO:0002691
+Lung Cancer,Cancer,MONDO:0008903
+Lymphoma/Hodgkin Disease,Cancer,MONDO:0005062
+Melanoma,Cancer,MONDO:0005105
+Mouth/Tongue/Lip Cancer,Cancer,MONDO:0005515
+Nervous System Cancer,Cancer,MONDO:0005872
+Ovary/Ovarian Cancer,Cancer,MONDO:0008170
+Pancreas/Pancreatic Cancer,Cancer,MONDO:0009831
+Prostate Cancer,Cancer,MONDO:0002493
+Rectum/Rectal Cancer,Cancer,MONDO:0006519
+Skin (Non-Melanoma) Cancer,Cancer,MONDO:0020804
+Skin (Unknown Type) Cancer,Cancer,MONDO:0002898
+Soft Tissue (Muscle or Fat) Cancer,Cancer,MONDO:0018078
+Stomach Cancer,Cancer,MONDO:0001056
+Testis/Testicular Cancer,Cancer,MONDO:0005447
+Thyroid Cancer,Cancer,MONDO:0002108
+Uterus/Uterine Cancer,Cancer,MONDO:0002715
