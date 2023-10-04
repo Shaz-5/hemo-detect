@@ -1,19 +1,19 @@
-name,uniprotId
-Gamma Glutamyl Transferase,E7ETN1
-Chloride,O00299
-Lactate Dehydrogenase,P00338
-Insulin,P01308
-Direct HDL-Cholesterol,P02647
-C-Reactive Protein,P02741
-Albumin,P02768
-Transferrin receptor,P02786
-Transferrin Saturation,P02787
-Ferritin,P02794
-LDL-Cholesterol(NIH2),P04114
-Alkaline Phosphatase,P05186
-Creatine Phosphokinase,P06732
-Aspartate Aminotransferase,P17174
-Alanine Aminotransferase,P24298
-Triglyceride,P55157
-Hemoglobin,P69905
-Bicarbonate,Q6U841
+name,unit,uniprotId
+Ferritin,ng/mL,P02794
+Transferrin Saturation,%,P02787
+Triglyceride,mmol/L,P55157
+LDL-Cholesterol(NIH2),mmol/L,P04114
+Transferrin receptor,nmol/L,P02786
+Alanine Aminotransferase,U/L,P24298
+Albumin,g/dL,P02768
+Alkaline Phosphatase,IU/L,P05186
+Aspartate Aminotransferase,U/L,P17174
+Bicarbonate,mmol/L,Q6U841
+Chloride,mmol/L,O00299
+Creatine Phosphokinase,IU/L,P06732
+Gamma Glutamyl Transferase,IU/L,E7ETN1
+Lactate Dehydrogenase,IU/L,P00338
+Direct HDL-Cholesterol,mmol/L,P02647
+C-Reactive Protein,mg/L,P02741
+Hemoglobin,g/dL,P69905
+Insulin,pmol/L,P01308

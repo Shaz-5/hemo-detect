@@ -4,38 +4,38 @@ Cobalt,nmol/L,Mineral,BIO_002
 Iron frozen,umol/L,Iron Levels,BIO_003
 UIBC,umol/L,Iron Levels,BIO_004
 Total Iron Binding Capacity,umol/L,Iron Levels,BIO_005
-Transferrin Saturation,%,Iron Levels,BIO_006
-Glycohemoglobin,%,Blood Sugar,BIO_007
-Cotinine,ng/mL,Metabolite,BIO_008
-Hydroxycotinine,ng/mL,Metabolite,BIO_009
-Blood lead,umol/L,Heavy Metals,BIO_010
-Blood cadmium,nmol/L,Heavy Metals,BIO_011
-Blood mercury,nmol/L,Heavy Metals,BIO_012
-Blood selenium,umol/L,Heavy Metals,BIO_013
-Blood manganese,nmol/L,Heavy Metals,BIO_014
-Alpha-carotene,umol/L,Carotenoids,BIO_015
-Alpha-crypotoxanthin,umol/L,Carotenoids,BIO_016
-Trans-beta-carotene,umol/L,Carotenoids,BIO_017
-Cis-beta-carotene,umol/L,Carotenoids,BIO_018
-Beta-cryptoxanthin,umol/L,Carotenoids,BIO_019
-Gamma-tocopherol,umol/L,Tocopherols,BIO_020
-Lutein and zeaxanthin,umol/L,Carotenoids and Retinoids,BIO_021
-Trans-lycopene,umol/L,Carotenoids and Retinoids,BIO_022
-Retinyl palmitate,umol/L,Carotenoids and Retinoids,BIO_023
-Retinyl stearate,umol/L,Carotenoids and Retinoids,BIO_024
-Total Lycopene,umol/L,Carotenoids and Retinoids,BIO_025
-Retinol,umol/L,Carotenoids and Retinoids,BIO_026
-Alpha-tocopherol,umol/L,Tocopherols,BIO_027
-Blood Urea Nitrogen,mg/dL,Waste byproduct,BIO_028
-Chloride,mmol/L,Electrolytes,BIO_029
-Creatinine,mg/dL,Chemical compound,BIO_030
-Iron,ug/dL,Iron Levels,BIO_031
-Osmolality,mmol/Kg,Electrolyte Concentration,BIO_032
-Phosphorus,mg/dL,Mineral,BIO_033
-Potassium,mmol/L,Electrolytes,BIO_034
-Sodium,mmol/L,Electrolytes,BIO_035
-Total Bilirubin,mg/dL,Pigment,BIO_036
-Total Calcium,mg/dL,Electrolytes,BIO_037
+Glycohemoglobin,%,Blood Sugar,BIO_006
+Cotinine,ng/mL,Metabolite,BIO_007
+Hydroxycotinine,ng/mL,Metabolite,BIO_008
+Blood lead,umol/L,Heavy Metals,BIO_009
+Blood cadmium,nmol/L,Heavy Metals,BIO_010
+Blood mercury,nmol/L,Heavy Metals,BIO_011
+Blood selenium,umol/L,Heavy Metals,BIO_012
+Blood manganese,nmol/L,Heavy Metals,BIO_013
+Alpha-carotene,umol/L,Carotenoids,BIO_014
+Alpha-crypotoxanthin,umol/L,Carotenoids,BIO_015
+Trans-beta-carotene,umol/L,Carotenoids,BIO_016
+Cis-beta-carotene,umol/L,Carotenoids,BIO_017
+Beta-cryptoxanthin,umol/L,Carotenoids,BIO_018
+Gamma-tocopherol,umol/L,Tocopherols,BIO_019
+Lutein and zeaxanthin,umol/L,Carotenoids and Retinoids,BIO_020
+Trans-lycopene,umol/L,Carotenoids and Retinoids,BIO_021
+Retinyl palmitate,umol/L,Carotenoids and Retinoids,BIO_022
+Retinyl stearate,umol/L,Carotenoids and Retinoids,BIO_023
+Total Lycopene,umol/L,Carotenoids and Retinoids,BIO_024
+Retinol,umol/L,Carotenoids and Retinoids,BIO_025
+Alpha-tocopherol,umol/L,Tocopherols,BIO_026
+Blood Urea Nitrogen,mg/dL,Waste byproduct,BIO_027
+Creatinine,mg/dL,Chemical compound,BIO_028
+Globulin,g/dL,Protein Group,BIO_029
+Iron,ug/dL,Iron Levels,BIO_030
+Osmolality,mmol/Kg,Electrolyte Concentration,BIO_031
+Phosphorus,mg/dL,Mineral,BIO_032
+Potassium,mmol/L,Electrolytes,BIO_033
+Sodium,mmol/L,Electrolytes,BIO_034
+Total Bilirubin,mg/dL,Pigment,BIO_035
+Total Calcium,mg/dL,Electrolytes,BIO_036
+Total Protein,g/dL,Protein Level,BIO_037
 Uric Acid,mg/dL,Waste Byproduct,BIO_038
 Total Cholesterol,mmol/L,Cholesterol,BIO_039
 Vitamin C,umol/L,Vitamin,BIO_040
