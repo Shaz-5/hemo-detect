@@ -297,14 +297,14 @@ def random_search_optimize(model,param,n_iter,cv,X_train, y_train,
 
 # Function for Optuna Hyperparameter Optimization
 
-def optuna_optimize(n_trials=100,direction='maximum',n_jobs=-1):
+def optuna_optimize(objective, model, n_trials=100,direction='maximum',n_jobs=-1):
     
     study = optuna.create_study(direction='maximize')  # 'maximize' for accuracy, 'minimize' for loss
     study.optimize(objective, n_trials=n_trials, n_jobs=n_jobs)
     clear_output()
     
     best_trial = study.best_trial.params
-    log_reg_opt = LogisticRegression(**best_trial)
+    log_reg_opt = model(**best_trial)
     
     return best_trial, log_reg_opt
 
@@ -406,7 +406,7 @@ def evaluate_feature_set(feature_set,df,label,model):
 
     model.fit(X_train, y_train)
 
-    evaluate_model_metrics(log_reg_test,X_train,y_train,X_test,y_test)
+    evaluate_model_metrics(model,X_train,y_train,X_test,y_test)
     
     
 # SelectFromModel can be used with any estimator that exposes feature importance
