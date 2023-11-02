@@ -19,6 +19,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
@@ -471,6 +473,24 @@ def log_reg_lasso_select(X_train,y_train,solver='saga'):
     l1_sorted_features = [feature for feature, _ in feature_importance_pairs]
 
     return l1_sorted_features
+
+
+# Uses lasso regularization in the LinearSVC model to give more weights to more important features
+
+def svc_lasso_select(X_train, y_train, C=1.0):
+
+    svc = LinearSVC(penalty='l1', C=C, dual=False)
+    svc.fit(X_train, y_train)
+
+    # Get feature importance coefficients from the SVM model
+    feature_importance = svc.coef_[0]
+
+    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X.columns, feature_importance)]
+    feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
+
+    sorted_features = [feature for feature, _ in feature_importance_pairs]
+
+    return sorted_features
 
 
 # Relief algorithm focuses on selecting features that are relevant to the target class
