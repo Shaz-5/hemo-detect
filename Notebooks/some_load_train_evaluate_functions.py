@@ -172,7 +172,10 @@ def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImp
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
     
     # Separate categorical and numerical columns 
-    categorical_cols = ['Gender'] 
+    if 'Gender' in df.columns:
+        categorical_cols = ['Gender'] 
+    else:
+        categorical_cols = []
     numeric_cols = [col for col in X.columns if col not in categorical_cols]
     
     # Preprocessing for numerical data
@@ -467,7 +470,7 @@ def log_reg_lasso_select(X_train,y_train,solver='saga'):
     # Get feature importance coefficients from the model
     feature_importance = l1_reg_model.coef_[0]
 
-    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X.columns, feature_importance)]
+    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X_train.columns, feature_importance)]
     feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
 
     l1_sorted_features = [feature for feature, _ in feature_importance_pairs]
