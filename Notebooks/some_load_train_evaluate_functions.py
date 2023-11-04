@@ -21,6 +21,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import TomekLinks
+from imblearn.combine import SMOTETomek
+
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
@@ -258,6 +264,55 @@ def evaluate_model_metrics(model,X_train,y_train,X_test,y_test):
     plt.legend(loc='lower right')
     plt.show()
     
+
+# Random Oversampling
+
+def random_over_sample(X,y, sampling_strategy='auto', random_state=42):
+    
+    ros = ml.RandomOverSampler(sampling_strategy=sampling_strategy, random_state=random_state)
+    X_resampled, y_resampled = ros.fit_resample(X, y)
+    
+    return X_resampled, y_resampled
+
+
+# SMOTE Oversampling
+
+def smote_over_sample(X,y, sampling_strategy='auto', random_state=42):
+    
+    smote = ml.SMOTE(sampling_strategy='auto', random_state=42)
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+    
+    return X_resampled, y_resampled
+
+
+# Random Undersampling
+
+def random_under_sample(X,y, sampling_strategy='auto', random_state=42):
+    
+    rus = ml.RandomUnderSampler(sampling_strategy=sampling_strategy, random_state=random_state)
+    X_resampled, y_resampled = rus.fit_resample(X, y)
+    
+    return X_resampled, y_resampled
+
+# Tomek Links
+
+def tomek_links(X,y, sampling_strategy='auto', random_state=42):
+    
+    tl = ml.TomekLinks(sampling_strategy='auto')
+    X_resampled, y_resampled = tl.fit_resample(X, y)
+
+    
+    return X_resampled, y_resampled
+
+# Smote + Tomek Links
+
+def smote_tomek(X,y, sampling_strategy='auto', random_state=42):
+    
+    smt = ml.SMOTETomek(sampling_strategy=sampling_strategy, random_state=random_state)
+    X_resampled, y_resampled = smt.fit_resample(X, y)
+    
+    return X_resampled, y_resampled
+
     
 # Function to perform grid search optimisation
 
