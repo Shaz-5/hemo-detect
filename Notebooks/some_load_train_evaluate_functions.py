@@ -20,6 +20,7 @@ from sklearn.pipeline import Pipeline
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
+from sklearn.naive_bayes import GaussianNB
 
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.over_sampling import SMOTE
@@ -48,6 +49,8 @@ from IPython.display import clear_output
 import warnings
 warnings.filterwarnings("ignore")
 
+
+# -----------------------------------------LOAD DATA (FROM NEO4J)------------------------------------------------------
 
 # Connecting to Neo4j
 
@@ -161,6 +164,9 @@ def get_data_of_disease(driver, disease):
     return disease_df
 
 
+# -----------------------------------------PREPROCESSING------------------------------------------------------
+
+
 # Function to preprocess the input dataframe and split it into training and testing sets.
 
 def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImputer(),
@@ -214,6 +220,8 @@ def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImp
     return X, y, X_train, X_test, y_train, y_test
 
 
+# -----------------------------------------EVALUATE MODEL------------------------------------------------------
+
 # Function for model evaluation
 
 def evaluate_model_metrics(model,X_train,y_train,X_test,y_test):
@@ -254,8 +262,8 @@ def evaluate_model_metrics(model,X_train,y_train,X_test,y_test):
 
     print('\nROC-AUC Curve:')
     plt.figure()
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.3f})')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.plot(fpr, tpr, color='red', lw=2, label=f'ROC curve (area = {roc_auc:.3f})')
+    plt.plot([0, 1], [0, 1], color='lightcoral', lw=2, linestyle='--')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
@@ -264,12 +272,14 @@ def evaluate_model_metrics(model,X_train,y_train,X_test,y_test):
     plt.legend(loc='lower right')
     plt.show()
     
+    
+# -----------------------------------------OVERSAMPLING AND UNDERSAMPLING------------------------------------------------------
 
 # Random Oversampling
 
 def random_over_sample(X,y, sampling_strategy='auto', random_state=42):
     
-    ros = ml.RandomOverSampler(sampling_strategy=sampling_strategy, random_state=random_state)
+    ros = RandomOverSampler(sampling_strategy=sampling_strategy, random_state=random_state)
     X_resampled, y_resampled = ros.fit_resample(X, y)
     
     return X_resampled, y_resampled
@@ -279,7 +289,7 @@ def random_over_sample(X,y, sampling_strategy='auto', random_state=42):
 
 def smote_over_sample(X,y, sampling_strategy='auto', random_state=42):
     
-    smote = ml.SMOTE(sampling_strategy='auto', random_state=42)
+    smote = SMOTE(sampling_strategy='auto', random_state=42)
     X_resampled, y_resampled = smote.fit_resample(X, y)
     
     return X_resampled, y_resampled
@@ -289,7 +299,7 @@ def smote_over_sample(X,y, sampling_strategy='auto', random_state=42):
 
 def random_under_sample(X,y, sampling_strategy='auto', random_state=42):
     
-    rus = ml.RandomUnderSampler(sampling_strategy=sampling_strategy, random_state=random_state)
+    rus = RandomUnderSampler(sampling_strategy=sampling_strategy, random_state=random_state)
     X_resampled, y_resampled = rus.fit_resample(X, y)
     
     return X_resampled, y_resampled
@@ -298,7 +308,7 @@ def random_under_sample(X,y, sampling_strategy='auto', random_state=42):
 
 def tomek_links(X,y, sampling_strategy='auto', random_state=42):
     
-    tl = ml.TomekLinks(sampling_strategy='auto')
+    tl = TomekLinks(sampling_strategy='auto')
     X_resampled, y_resampled = tl.fit_resample(X, y)
 
     
@@ -308,11 +318,14 @@ def tomek_links(X,y, sampling_strategy='auto', random_state=42):
 
 def smote_tomek(X,y, sampling_strategy='auto', random_state=42):
     
-    smt = ml.SMOTETomek(sampling_strategy=sampling_strategy, random_state=random_state)
+    smt = SMOTETomek(sampling_strategy=sampling_strategy, random_state=random_state)
     X_resampled, y_resampled = smt.fit_resample(X, y)
     
     return X_resampled, y_resampled
 
+
+
+# -------------------------------------HYPERPARAMETER OPTIMISATION------------------------------------------------------
     
 # Function to perform grid search optimisation
 
@@ -368,6 +381,8 @@ def optuna_optimize(objective, model, n_trials=100,direction='maximum',n_jobs=-1
     
     return best_trial, log_reg_opt
 
+
+# -----------------------------------------CROSS VALIDATION------------------------------------------------------
 
 # K-cross validation
 
@@ -442,7 +457,21 @@ def stratified_k_cross_validate(model,X,y,n_splits,shuffle=True,verbose=0,random
     print(f"\nAverage F1-Score: {average_f1}")
     
     
-# Feature Selection
+    
+# -----------------------------------------FEATURE SELECTION------------------------------------------------------
+
+
+# Function to evaluate the feature set
+
+def evaluate_feature_set(feature_set, model, X_train,y_train,X_test,y_test):
+    
+    X_train = X_train[feature_set]
+    X_test = X_test[feature_set]
+
+    model.fit(X_train, y_train)
+
+    evaluate_model_metrics(model,X_train,y_train,X_test,y_test)
+
 
 # Function to check which features are more correlated with the disease
 
@@ -453,20 +482,6 @@ def get_correlated_features(df,disease,pos,neg):
     neg_corr = corr_df[corr_df<neg]
     
     return pos_corr, neg_corr
-
-
-# Function to evaluate the feature set
-
-def evaluate_feature_set(feature_set,df,label,model):
-    
-    new_diabetes_df = df[feature_set+[label]]
-
-    X, y, X_train, X_test, y_train, y_test = preprocess_and_split(df = new_diabetes_df, label = label,
-                                                                  imputer=SimpleImputer(strategy='median'))
-
-    model.fit(X_train, y_train)
-
-    evaluate_model_metrics(model,X_train,y_train,X_test,y_test)
     
     
 # SelectFromModel can be used with any estimator that exposes feature importance
@@ -519,7 +534,7 @@ def select_rfe_features(model,X,y,n,step):
 
 def log_reg_lasso_select(X_train,y_train,solver='saga'):
     
-    l1_reg_model = LogisticRegression(penalty='l1', solver='saga')
+    l1_reg_model = LogisticRegression(penalty='l1', solver=solver)
     l1_reg_model.fit(X_train, y_train)
 
     # Get feature importance coefficients from the model
@@ -571,17 +586,12 @@ def relief_feature_select(n,X,y,n_jobs=-1):
 
 # Find the optimal number of features for the model
 
-def plot_num_feature_performance(model, df, label, feature_set, cv=10, scoring='accuracy', verbose=False):
+def plot_num_feature_performance(model, X_train, X_test, y_train, y_test, feature_set,
+                                 cv=10, scoring='accuracy', verbose=False):
     
-    new_diabetes_df = df[feature_set+[label]]
-
-    X, y, X_train, X_test, y_train, y_test = preprocess_and_split(df = new_diabetes_df, label = label,
-                                                                  impute = True, 
-                                                                  imputer=SimpleImputer(strategy='median'),
-                                                                  random_state=42)
-
-    n_features = X.shape[1]
-        
+    X_train = X_train[feature_set]
+    X_test = X_test[feature_set]
+            
     num_features = []
     accuracies = []
     num_features_vs_accuracy = {}
@@ -595,7 +605,7 @@ def plot_num_feature_performance(model, df, label, feature_set, cv=10, scoring='
         X_train_subset = X_train.iloc[:, :num_features]
         X_test_subset = X_test.iloc[:, :num_features]
 
-        clf = LogisticRegression()
+        clf = model
         clf.fit(X_train_subset, y_train)
 
         y_pred = clf.predict(X_test_subset)
@@ -608,7 +618,9 @@ def plot_num_feature_performance(model, df, label, feature_set, cv=10, scoring='
             score = recall_score(y_test, y_pred)
         elif scoring == 'f1':
             score = f1_score(y_test, y_pred)
-
+        elif scoring == 'auc':
+            fpr, tpr, thresholds = roc_curve(y_test, y_pred)
+            score = auc(fpr, tpr)
 
         num_features_list.append(num_features)
         accuracy_list.append(score)
@@ -622,10 +634,9 @@ def plot_num_feature_performance(model, df, label, feature_set, cv=10, scoring='
     print(f'\nMaximum {scoring} = {max_score} for {max_score_num_feature[0]} features')
 
     plt.figure(figsize=(10,7))
-    plt.plot(num_features_list, accuracy_list, marker='o', linestyle='-')
+    plt.plot(num_features_list, accuracy_list, marker='o', color='red', linestyle='-')
     plt.title('Model Performance vs. Number of Features')
     plt.xlabel('Number of Features')
     plt.ylabel('Accuracy')
     plt.show()
-
-
+    
