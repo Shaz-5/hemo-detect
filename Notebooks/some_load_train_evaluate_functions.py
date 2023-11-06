@@ -642,3 +642,23 @@ def plot_num_feature_performance(model, X_train, X_test, y_train, y_test, featur
     plt.ylabel('Accuracy')
     plt.show()
     
+    
+# --------------------------------------------SAVE MODEL------------------------------------------------------
+
+
+def save_model(model, path):
+
+    q = ''
+
+    if os.path.exists(path):
+        q = input('Overwrite File? [y/n]: ')
+
+    if q.lower() == 'y' or not os.path.exists(path):
+        try:
+            joblib.dump(model, path)
+            print('Saved Model')
+
+        except Exception as err:
+            print('Error while saving model: ',err)
+    else:
+        clear_output()
