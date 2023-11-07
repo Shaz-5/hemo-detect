@@ -172,7 +172,7 @@ def get_data_of_disease(driver, disease):
 # Function to preprocess the input dataframe and split it into training and testing sets.
 
 def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImputer(),
-                         scaler = StandardScaler(), test_size=0.2, random_state=42):
+                         scaler = StandardScaler(), test_size=0.2, val_size=0.5, random_state=42):
         
     if 'Respondent_ID' in df.columns:
         X = df.drop(['Respondent_ID'], axis=1)
@@ -184,6 +184,8 @@ def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImp
     
     # Splitting the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    X_val, X_test, y_val, y_test = train_test_split(X_train, y_train, test_size=val_size, random_state=random_state)
+
     
     # Separate categorical and numerical columns 
     if 'Gender' in df.columns:
@@ -212,14 +214,16 @@ def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImp
     # Preprocess the data
     X_train = preprocessor.fit_transform(X_train)
     X_test = preprocessor.transform(X_test)
+    X_val = preprocessor.transform(X_val)
     X = preprocessor.transform(X)
 
     
     X_train = pd.DataFrame(X_train, columns= categorical_cols + numeric_cols)
     X_test = pd.DataFrame(X_test, columns= categorical_cols + numeric_cols)
+    X_val = pd.DataFrame(X_val, columns= categorical_cols + numeric_cols)
     X = pd.DataFrame(X, columns= categorical_cols + numeric_cols)
 
-    return X, y, X_train, X_test, y_train, y_test
+    return X, y, X_train, X_val, X_test, y_train, y_val, y_test
 
 
 # -----------------------------------------EVALUATE MODEL------------------------------------------------------
@@ -272,56 +276,72 @@ def evaluate_model_metrics(model,X_train,y_train,X_test,y_test):
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc='lower right')
+    plt.grid(True)
     plt.show()
     
     
 # -----------------------------------------OVERSAMPLING AND UNDERSAMPLING------------------------------------------------------
 
+
+# Plot Class Distribution
+
+def plot_class_dist(y):
+    
+    class_distribution = y.value_counts()
+    plt.figure(figsize=(5,4))
+    class_distribution.plot(kind='barh', color=['lightcoral', 'indianred'])
+    plt.xlabel('Count')
+    plt.ylabel('Class')
+    plt.title('Class Distribution')
+    plt.grid(False)
+    plt.show()
+    
+
 # Random Oversampling
 
-def random_over_sample(X,y, sampling_strategy='auto', random_state=42):
+def random_over_sample(X_train,y_train, sampling_strategy='auto', random_state=42):
     
     ros = RandomOverSampler(sampling_strategy=sampling_strategy, random_state=random_state)
-    X_resampled, y_resampled = ros.fit_resample(X, y)
+    X_resampled, y_resampled = ros.fit_resample(X_train, y_train)
     
     return X_resampled, y_resampled
 
 
 # SMOTE Oversampling
 
-def smote_over_sample(X,y, sampling_strategy='auto', random_state=42):
+def smote_over_sample(X_train,y_train, sampling_strategy='auto', random_state=42):
     
     smote = SMOTE(sampling_strategy='auto', random_state=42)
-    X_resampled, y_resampled = smote.fit_resample(X, y)
+    X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
     
     return X_resampled, y_resampled
 
 
 # Random Undersampling
 
-def random_under_sample(X,y, sampling_strategy='auto', random_state=42):
+def random_under_sample(X_train,y_train, sampling_strategy='auto', random_state=42):
     
     rus = RandomUnderSampler(sampling_strategy=sampling_strategy, random_state=random_state)
-    X_resampled, y_resampled = rus.fit_resample(X, y)
+    X_resampled, y_resampled = rus.fit_resample(X_train, y_train)
     
     return X_resampled, y_resampled
 
 # Tomek Links
 
-def tomek_links(X,y, sampling_strategy='auto', random_state=42):
+def tomek_links(X_train,y_train, sampling_strategy='auto', random_state=42):
     
     tl = TomekLinks(sampling_strategy='auto')
-    X_resampled, y_resampled = tl.fit_resample(X, y)
+    X_resampled, y_resampled = tl.fit_resample(X_train, y_train)
 
     
     return X_resampled, y_resampled
 
 # Smote + Tomek Links
 
-def smote_tomek(X,y, sampling_strategy='auto', random_state=42):
+def smote_tomek(X_train,y_train, sampling_strategy='auto', random_state=42):
     
     smt = SMOTETomek(sampling_strategy=sampling_strategy, random_state=random_state)
-    X_resampled, y_resampled = smt.fit_resample(X, y)
+    X_resampled, y_resampled = smt.fit_resample(X_train, y_train)
     
     return X_resampled, y_resampled
 
@@ -588,58 +608,35 @@ def relief_feature_select(n,X,y,n_jobs=-1):
 
 # Find the optimal number of features for the model
 
-def plot_num_feature_performance(model, X_train, X_test, y_train, y_test, feature_set,
-                                 cv=10, scoring='accuracy', verbose=False):
+def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accuracy', verbose=False):
     
-    X_train = X_train[feature_set]
-    X_test = X_test[feature_set]
-            
-    num_features = []
-    accuracies = []
-    num_features_vs_accuracy = {}
-
     num_features_list = []
     accuracy_list = []
-
-    # Evaluating the model for each set of number of features
-    for num_features in range(5, X_train.shape[1] + 1):
-
-        X_train_subset = X_train.iloc[:, :num_features]
-        X_test_subset = X_test.iloc[:, :num_features]
-
-        clf = model
-        clf.fit(X_train_subset, y_train)
-
-        y_pred = clf.predict(X_test_subset)
     
-        if scoring == 'accuracy':
-            score = accuracy_score(y_test, y_pred)
-        elif scoring == 'precision':
-            score = precision_score(y_test, y_pred)
-        elif scoring == 'recall':
-            score = recall_score(y_test, y_pred)
-        elif scoring == 'f1':
-            score = f1_score(y_test, y_pred)
-        elif scoring == 'auc':
-            fpr, tpr, thresholds = roc_curve(y_test, y_pred)
-            score = auc(fpr, tpr)
+    for num_features in range(5, len(feature_set) + 1):
 
-        num_features_list.append(num_features)
-        accuracy_list.append(score)
+        X_subset = X[feature_set[:num_features]]
+
+        cv_scores = cross_val_score(model, X_subset, y, cv=cv, scoring=scoring)
+
+        avg_score = cv_scores.mean()
         
-        if verbose == True:
-            print(num_features, ':', score)
-        num_features_vs_accuracy[num_features] = score
-    
-    max_score = max(num_features_vs_accuracy.values())
-    max_score_num_feature = [i for i in num_features_vs_accuracy if num_features_vs_accuracy[i]==max_score]
-    print(f'\nMaximum {scoring} = {max_score} for {max_score_num_feature[0]} features')
+        num_features_list.append(num_features)
+        accuracy_list.append(avg_score)
+        
+        if verbose:
+            print(f'Features: {num_features}, {scoring}: {avg_score:.4f}')
 
-    plt.figure(figsize=(10,7))
+    max_score = max(accuracy_list)
+    max_score_num_feature = num_features_list[accuracy_list.index(max_score)]
+    
+    print(f'\nMaximum {scoring} = {max_score:.4f} for {max_score_num_feature} features')
+
+    plt.figure(figsize=(10, 7))
     plt.plot(num_features_list, accuracy_list, marker='o', color='red', linestyle='-')
     plt.title('Model Performance vs. Number of Features')
     plt.xlabel('Number of Features')
-    plt.ylabel('Accuracy')
+    plt.ylabel(scoring)
     plt.show()
     
     
