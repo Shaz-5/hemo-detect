@@ -21,6 +21,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.over_sampling import SMOTE
