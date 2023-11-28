@@ -23,6 +23,7 @@ from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.over_sampling import SMOTE
@@ -354,12 +355,15 @@ def smote_tomek(X_train,y_train, sampling_strategy='auto', random_state=42):
 # Function to perform grid search optimisation
 
 def grid_search_optimize(model, param_grid, X_train, y_train, cv,
-                         scoring='accuracy', verbose=0, n_jobs=-1):
+                         scoring='accuracy', verbose=0, n_jobs=-1, val=False):
     
     grid_search = GridSearchCV(model, param_grid=param_grid, cv=cv, 
                                scoring=scoring, verbose=verbose, n_jobs=n_jobs)
     
-    grid_search.fit(X_train, y_train)
+    if val==True:
+        grid_search.fit(X_train.values, y_train.values)
+    else:
+        grid_search.fit(X_train, y_train)
     clear_output()
     
     grid_best_params = grid_search.best_params_
@@ -371,7 +375,7 @@ def grid_search_optimize(model, param_grid, X_train, y_train, cv,
 # Function for Random Search
 
 def random_search_optimize(model,param,n_iter,cv,X_train, y_train,
-                           scoring='accuracy', n_jobs=-1, verbose=0):
+                           scoring='accuracy', n_jobs=-1, verbose=0, val=False):
     
     random_search = RandomizedSearchCV(
         model,
@@ -383,7 +387,10 @@ def random_search_optimize(model,param,n_iter,cv,X_train, y_train,
         verbose=verbose
     )
 
-    random_search.fit(X_train, y_train)
+    if val==True:
+        random_search.fit(X_train.values, y_train.values)
+    else:
+        random_search.fit(X_train, y_train)
     clear_output()
 
     rand_best_params = random_search.best_params_
@@ -487,13 +494,16 @@ def stratified_k_cross_validate(model,X,y,n_splits,shuffle=True,verbose=0,random
 
 # Function to evaluate the feature set
 
-def evaluate_feature_set(feature_set, model, X_train,y_train,X_test,y_test):
+def evaluate_feature_set(feature_set, model, X_train,y_train,X_test,y_test, val=False):
     
     X_train = X_train[feature_set]
     X_test = X_test[feature_set]
 
-    model.fit(X_train, y_train)
-
+    if val == True:
+        model.fit(X_train.values, y_train.values)
+    else:
+        model.fit(X_train,y_train)
+        
     evaluate_model_metrics(model,X_train,y_train,X_test,y_test)
 
 
@@ -621,7 +631,7 @@ def get_rand_forest_features(model, X_train):
 
 # Find the optimal number of features for the model
 
-def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accuracy', verbose=False):
+def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accuracy', verbose=False, val=False):
     
     num_features_list = []
     accuracy_list = []
@@ -630,7 +640,10 @@ def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accur
 
         X_subset = X[feature_set[:num_features]]
 
-        cv_scores = cross_val_score(model, X_subset, y, cv=cv, scoring=scoring)
+        if val==True:
+            cv_scores = cross_val_score(model, X_subset.values, y.values, cv=cv, scoring=scoring)
+        else:
+            cv_scores = cross_val_score(model, X_subset, y, cv=cv, scoring=scoring)
 
         avg_score = cv_scores.mean()
         
