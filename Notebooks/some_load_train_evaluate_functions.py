@@ -22,6 +22,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.over_sampling import SMOTE
@@ -605,6 +606,17 @@ def relief_feature_select(n,X,y,n_jobs=-1):
     relieff_features = sorted_feature_names
     
     return relieff_features
+
+
+# Random Forest Feature Importances
+
+def get_rand_forest_features(model, X_train):
+    random_forest_features = ml.pd.DataFrame(model.feature_importances_, index=X_train.columns,
+                                             columns=['Importance'])
+    random_forest_features = random_forest_features.sort_values('Importance', ascending=False)
+    random_forest_features = list(random_forest_features.index)
+    
+    return random_forest_features
 
 
 # Find the optimal number of features for the model
