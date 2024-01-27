@@ -233,54 +233,234 @@ def preprocess_and_split(df, label, impute=True, scale=True, imputer = SimpleImp
 
 # Function for model evaluation
 
-def evaluate_model_metrics(model,X_train,y_train,X_test,y_test):
+def evaluate_model_metrics(model,X_train,y_train,X_test,y_test, verbose=3):
     
     y_pred = model.predict(X_test)
     
     # Accuracy
-    train_accuracy = accuracy_score(y_train, model.predict(X_train))
-    test_accuracy = accuracy_score(y_test, y_pred)
-    print(f'\nTrain Accuracy: {train_accuracy:.3f}')
-    print(f'\nTest Accuracy: {test_accuracy:.3f}')
+    if verbose >= 0:
+        train_accuracy = accuracy_score(y_train, model.predict(X_train))
+        test_accuracy = accuracy_score(y_test, y_pred)
+        print(f'\nTrain Accuracy: {train_accuracy:.3f}')
+        print(f'\nTest Accuracy: {test_accuracy:.3f}')
 
     # Precision
-    precision = precision_score(y_test, y_pred)
-    print(f'\nPrecision: {precision:.3f}')
+    if verbose >= 1:
+        precision = precision_score(y_test, y_pred)
+        print(f'\nPrecision: {precision:.3f}')
 
     # Recall
-    recall = recall_score(y_test, y_pred)
-    print(f'\nRecall: {recall:.3f}')
+    if verbose >= 2:
+        recall = recall_score(y_test, y_pred)
+        print(f'\nRecall: {recall:.3f}')
 
     # F1-score
-    f1 = f1_score(y_test, y_pred)
-    print(f'\nF1-Score: {f1:.3f}')
+    if verbose >= 3:
+        f1 = f1_score(y_test, y_pred)
+        print(f'\nF1-Score: {f1:.3f}')
 
     # Confusion Matrix
-    conf_matrix = confusion_matrix(y_test, y_pred)
-    print('\nConfusion Matrix:\n')
-    print(conf_matrix)
+    if verbose >= 4:
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        print('\nConfusion Matrix:\n')
+        print(conf_matrix)
 
     # Classification Report
-    class_report = classification_report(y_test, y_pred, target_names=['Class 0', 'Class 1'])
-    print('\n\nClassification Report:\n')
-    print(class_report)
+    if verbose >= 5:
+        class_report = classification_report(y_test, y_pred, target_names=['Class 0', 'Class 1'])
+        print('\n\nClassification Report:\n')
+        print(class_report)
 
     # ROC Curve and AUC
-    fpr, tpr, thresholds = roc_curve(y_test, y_pred)
-    roc_auc = auc(fpr, tpr)
+    if verbose >= 6:
+        fpr, tpr, thresholds = roc_curve(y_test, y_pred)
+        roc_auc = auc(fpr, tpr)
 
-    print('\nROC-AUC Curve:')
-    plt.figure()
-    plt.plot(fpr, tpr, color='red', lw=2, label=f'ROC curve (area = {roc_auc:.3f})')
-    plt.plot([0, 1], [0, 1], color='lightcoral', lw=2, linestyle='--')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic')
-    plt.legend(loc='lower right')
-    plt.grid(True)
+        print('\nROC-AUC Curve:')
+        plt.figure(figsize=(6,4))
+        plt.plot(fpr, tpr, color='red', lw=2, label=f'ROC curve (area = {roc_auc:.3f})')
+        plt.plot([0, 1], [0, 1], color='lightcoral', lw=2, linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic')
+        plt.legend(loc='lower right')
+        plt.show()
+    
+    
+    
+# -----------------------------------------FEATURE SELECTION------------------------------------------------------
+
+
+def evaluate_feature_set(feature_set, model, X_train,y_train,X_val,y_val, verbose=3):
+    
+    X_train = X_train[feature_set]
+    X_val = X_val[feature_set]
+
+    model.fit(X_train, y_train)
+
+    evaluate_model_metrics(model,X_train,y_train,X_val,y_val, verbose=verbose)
+
+
+# Function to check which features are more correlated with the disease
+
+def get_correlated_features(df,disease,pos,neg):
+    
+    corr_df = df.corr()[disease].sort_values(ascending=False)
+    pos_corr = corr_df[corr_df>pos]
+    neg_corr = corr_df[corr_df<neg]
+    
+    return pos_corr, neg_corr
+    
+    
+# SelectFromModel can be used with any estimator that exposes feature importance
+
+def select_from_model_features(model,X,y):
+
+    sfm = SelectFromModel(model)  
+
+    
+    sfm.fit_transform(X, y)
+
+    
+    selected_features = sfm.get_support()
+    feature_names = X.columns
+    sfm_features = [feature_names[i] for i, selected in enumerate(selected_features) if selected]
+
+    return sfm_features
+
+
+# Function to select features using SelectKBest using anova scores
+
+def select_k_best(X,y,n):
+    
+    select = SelectKBest(score_func = f_classif, k = n)
+    
+    z = select.fit_transform(X,y)
+
+    feature_rankings = select.scores_
+    feature_rankings_df = pd.DataFrame({'Feature': X.columns, 'Ranking': feature_rankings})
+    sorted_features = feature_rankings_df.sort_values(by='Ranking',ascending=False)
+    
+    return list(sorted_features.Feature.values)
+
+
+#  RFE recursively removes the least important features from the dataset
+
+def select_rfe_features(model,X,y,n,step):
+    
+    rfe = RFE(model,n_features_to_select=n,step=step)
+    fit = rfe.fit(X, y)
+
+    feature_rankings = rfe.ranking_
+    feature_rankings_df = pd.DataFrame({'Feature': X.columns, 'Ranking': feature_rankings})
+    sorted_features = feature_rankings_df.sort_values(by='Ranking')
+    
+    return list(sorted_features.Feature.values)
+
+
+# Uses lasso regularization to give more weights to more important features
+
+def log_reg_lasso_select(X_train,y_train,solver='saga'):
+    
+    l1_reg_model = LogisticRegression(penalty='l1', solver=solver)
+    l1_reg_model.fit(X_train, y_train)
+
+    # Get feature importance coefficients from the model
+    feature_importance = l1_reg_model.coef_[0]
+
+    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X_train.columns, feature_importance)]
+    feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
+
+    l1_sorted_features = [feature for feature, _ in feature_importance_pairs]
+
+    return l1_sorted_features
+
+
+# Uses lasso regularization in the LinearSVC model to give more weights to more important features
+
+def svc_lasso_select(X_train, y_train, C=1.0):
+
+    svc = LinearSVC(penalty='l1', C=C, dual=False)
+    svc.fit(X_train, y_train)
+
+    # Get feature importance coefficients from the SVM model
+    feature_importance = svc.coef_[0]
+
+    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X.columns, feature_importance)]
+    feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
+
+    sorted_features = [feature for feature, _ in feature_importance_pairs]
+
+    return sorted_features
+
+
+# Relief algorithm focuses on selecting features that are relevant to the target class
+
+def relief_feature_select(n,X,y,n_jobs=-1):
+    
+    fs = ReliefF(n_features_to_select=n, n_jobs=n_jobs)
+    fs.fit(X.values, y.values)
+
+    feature_importances = fs.feature_importances_
+    
+    feature_names = X.columns
+    feature_importance_tuples = list(zip(feature_names, feature_importances))
+    sorted_features = sorted(feature_importance_tuples, key=lambda x: x[1], reverse=True)
+    sorted_feature_names = [feature[0] for feature in sorted_features]
+    relieff_features = sorted_feature_names
+    
+    return relieff_features
+
+
+# Random Forest Feature Importances
+
+def get_rand_forest_features(model, X_train):
+    random_forest_features = ml.pd.DataFrame(model.feature_importances_, index=X_train.columns,
+                                             columns=['Importance'])
+    random_forest_features = random_forest_features.sort_values('Importance', ascending=False)
+    random_forest_features = list(random_forest_features.index)
+    
+    return random_forest_features
+
+
+# Find the optimal number of features for the model
+
+def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accuracy', verbose=False, val=False):
+    
+    num_features_list = []
+    accuracy_list = []
+    
+    for num_features in range(5, len(feature_set) + 1):
+
+        X_subset = X[feature_set[:num_features]]
+
+        if val==True:
+            cv_scores = cross_val_score(model, X_subset.values, y.values, cv=cv, scoring=scoring)
+        else:
+            cv_scores = cross_val_score(model, X_subset, y, cv=cv, scoring=scoring)
+
+        avg_score = cv_scores.mean()
+        
+        num_features_list.append(num_features)
+        accuracy_list.append(avg_score)
+        
+        if verbose:
+            print(f'Features: {num_features}, {scoring}: {avg_score:.4f}')
+
+    max_score = max(accuracy_list)
+    max_score_num_feature = num_features_list[accuracy_list.index(max_score)]
+    
+    print(f'\nMaximum {scoring} = {max_score:.4f} for {max_score_num_feature} features')
+
+    plt.figure(figsize=(10, 7))
+    plt.plot(num_features_list, accuracy_list, marker='o', color='red', linestyle='-')
+    plt.title('Model Performance vs. Number of Features')
+    plt.xlabel('Number of Features')
+    plt.ylabel(scoring)
     plt.show()
+    
     
     
 # -----------------------------------------OVERSAMPLING AND UNDERSAMPLING------------------------------------------------------
@@ -489,183 +669,6 @@ def stratified_k_cross_validate(model,X,y,n_splits,shuffle=True,verbose=0,random
     
     
     
-# -----------------------------------------FEATURE SELECTION------------------------------------------------------
-
-
-# Function to evaluate the feature set
-
-def evaluate_feature_set(feature_set, model, X_train,y_train,X_test,y_test, val=False):
-    
-    X_train = X_train[feature_set]
-    X_test = X_test[feature_set]
-
-    if val == True:
-        model.fit(X_train.values, y_train.values)
-    else:
-        model.fit(X_train,y_train)
-        
-    evaluate_model_metrics(model,X_train,y_train,X_test,y_test)
-
-
-# Function to check which features are more correlated with the disease
-
-def get_correlated_features(df,disease,pos,neg):
-    
-    corr_df = df.corr()[disease].sort_values(ascending=False)
-    pos_corr = corr_df[corr_df>pos]
-    neg_corr = corr_df[corr_df<neg]
-    
-    return pos_corr, neg_corr
-    
-    
-# SelectFromModel can be used with any estimator that exposes feature importance
-
-def select_from_model_features(model,X,y):
-
-    sfm = SelectFromModel(model)  
-
-    
-    sfm.fit_transform(X, y)
-
-    
-    selected_features = sfm.get_support()
-    feature_names = X.columns
-    sfm_features = [feature_names[i] for i, selected in enumerate(selected_features) if selected]
-
-    return sfm_features
-
-
-# Function to select features using SelectKBest using anova scores
-
-def select_k_best(X,y,n):
-    
-    select = SelectKBest(score_func = f_classif, k = n)
-    
-    z = select.fit_transform(X,y)
-
-    feature_rankings = select.scores_
-    feature_rankings_df = pd.DataFrame({'Feature': X.columns, 'Ranking': feature_rankings})
-    sorted_features = feature_rankings_df.sort_values(by='Ranking',ascending=False)
-    
-    return sorted_features.Feature.values
-
-
-#  RFE recursively removes the least important features from the dataset
-
-def select_rfe_features(model,X,y,n,step):
-    
-    rfe = RFE(model,n_features_to_select=n,step=step)
-    fit = rfe.fit(X, y)
-
-    feature_rankings = rfe.ranking_
-    feature_rankings_df = pd.DataFrame({'Feature': X.columns, 'Ranking': feature_rankings})
-    sorted_features = feature_rankings_df.sort_values(by='Ranking')
-    
-    return sorted_features.Feature.values
-
-
-# Uses lasso regularization to give more weights to more important features
-
-def log_reg_lasso_select(X_train,y_train,solver='saga'):
-    
-    l1_reg_model = LogisticRegression(penalty='l1', solver=solver)
-    l1_reg_model.fit(X_train, y_train)
-
-    # Get feature importance coefficients from the model
-    feature_importance = l1_reg_model.coef_[0]
-
-    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X_train.columns, feature_importance)]
-    feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
-
-    l1_sorted_features = [feature for feature, _ in feature_importance_pairs]
-
-    return l1_sorted_features
-
-
-# Uses lasso regularization in the LinearSVC model to give more weights to more important features
-
-def svc_lasso_select(X_train, y_train, C=1.0):
-
-    svc = LinearSVC(penalty='l1', C=C, dual=False)
-    svc.fit(X_train, y_train)
-
-    # Get feature importance coefficients from the SVM model
-    feature_importance = svc.coef_[0]
-
-    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X.columns, feature_importance)]
-    feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
-
-    sorted_features = [feature for feature, _ in feature_importance_pairs]
-
-    return sorted_features
-
-
-# Relief algorithm focuses on selecting features that are relevant to the target class
-
-def relief_feature_select(n,X,y,n_jobs=-1):
-    
-    fs = ReliefF(n_features_to_select=n, n_jobs=n_jobs)
-    fs.fit(X.values, y.values)
-
-    feature_importances = fs.feature_importances_
-    
-    feature_names = X.columns
-    feature_importance_tuples = list(zip(feature_names, feature_importances))
-    sorted_features = sorted(feature_importance_tuples, key=lambda x: x[1], reverse=True)
-    sorted_feature_names = [feature[0] for feature in sorted_features]
-    relieff_features = sorted_feature_names
-    
-    return relieff_features
-
-
-# Random Forest Feature Importances
-
-def get_rand_forest_features(model, X_train):
-    random_forest_features = ml.pd.DataFrame(model.feature_importances_, index=X_train.columns,
-                                             columns=['Importance'])
-    random_forest_features = random_forest_features.sort_values('Importance', ascending=False)
-    random_forest_features = list(random_forest_features.index)
-    
-    return random_forest_features
-
-
-# Find the optimal number of features for the model
-
-def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accuracy', verbose=False, val=False):
-    
-    num_features_list = []
-    accuracy_list = []
-    
-    for num_features in range(5, len(feature_set) + 1):
-
-        X_subset = X[feature_set[:num_features]]
-
-        if val==True:
-            cv_scores = cross_val_score(model, X_subset.values, y.values, cv=cv, scoring=scoring)
-        else:
-            cv_scores = cross_val_score(model, X_subset, y, cv=cv, scoring=scoring)
-
-        avg_score = cv_scores.mean()
-        
-        num_features_list.append(num_features)
-        accuracy_list.append(avg_score)
-        
-        if verbose:
-            print(f'Features: {num_features}, {scoring}: {avg_score:.4f}')
-
-    max_score = max(accuracy_list)
-    max_score_num_feature = num_features_list[accuracy_list.index(max_score)]
-    
-    print(f'\nMaximum {scoring} = {max_score:.4f} for {max_score_num_feature} features')
-
-    plt.figure(figsize=(10, 7))
-    plt.plot(num_features_list, accuracy_list, marker='o', color='red', linestyle='-')
-    plt.title('Model Performance vs. Number of Features')
-    plt.xlabel('Number of Features')
-    plt.ylabel(scoring)
-    plt.show()
-    
-    
 # --------------------------------------------SAVE MODEL------------------------------------------------------
 
 
@@ -685,3 +688,31 @@ def save_model(model, path):
             print('Error while saving model: ',err)
     else:
         clear_output()
+        
+
+# --------------------------------------------PREDICTION------------------------------------------------------
+        
+        
+# Function to predict on perturbed values
+
+def predict_on_modified_instance(model, row, label, scale=0.15):
+    
+    def perturb_row(row, scale=0.5):
+        perturbed_row = row.copy()
+
+        for i in range(1,len(row)):
+            perturbation = np.random.normal(0, scale)
+
+            perturbed_row[i] += perturbation
+
+        return perturbed_row
+
+    # Prediction
+    print('Instance:\n',row.values)
+    print('\nExpected Class: ',label)
+
+    new_row = perturb_row(row, scale=0.15)
+    new_row
+    print('\n Modified Instance:\n',new_row.values)
+    prediction = model.predict(np.array(new_row).reshape(1, -1))
+    print('\nPredicted Class: ', prediction)
