@@ -293,12 +293,15 @@ def evaluate_model_metrics(model,X_train,y_train,X_test,y_test, verbose=3):
 # -----------------------------------------FEATURE SELECTION------------------------------------------------------
 
 
-def evaluate_feature_set(feature_set, model, X_train,y_train,X_val,y_val, verbose=3):
+def evaluate_feature_set(feature_set, model, X_train,y_train,X_val,y_val, verbose=3, val=False):
     
     X_train = X_train[feature_set]
     X_val = X_val[feature_set]
 
-    model.fit(X_train, y_train)
+    if val:
+        model.fit(X_train.values, y_train.values)
+    else:
+        model.fit(X_train, y_train)
 
     evaluate_model_metrics(model,X_train,y_train,X_val,y_val, verbose=verbose)
 
