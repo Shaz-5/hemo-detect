@@ -34,6 +34,8 @@ from imblearn.combine import SMOTETomek
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
+from sklearn.metrics import matthews_corrcoef
+from sklearn.metrics import average_precision_score
 
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.feature_selection import RFE
@@ -49,6 +51,9 @@ import optuna
 from sklearn.model_selection import StratifiedKFold
 
 import joblib
+import pickle
+
+from pandas.plotting import table
 
 from IPython.display import clear_output
 import warnings
@@ -719,3 +724,66 @@ def predict_on_modified_instance(model, row, label, scale=0.15):
     print('\n Modified Instance:\n',new_row.values)
     prediction = model.predict(np.array(new_row).reshape(1, -1))
     print('\nPredicted Class: ', prediction)
+    
+    
+    
+# --------------------------------------------MODEL COMPARE------------------------------------------------------
+
+
+# function to get model metrics
+
+def get_model_metrics(model, X_test, y_test):
+
+    y_pred = model.predict(X_test)
+
+    cm = confusion_matrix(y_test, y_pred)
+    tn, fp, fn, tp = cm.ravel()
+
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    mcc = matthews_corrcoef(y_test, y_pred)
+    roc_auc = roc_auc_score(y_test, y_pred)
+    prc_auc = average_precision_score(y_test, y_pred)
+
+    # Store metrics for tabulation
+    metrics_data = {
+        "Model": model.__class__.__name__,
+        "Accuracy": round(accuracy,3),
+        "Precision": round(precision,3),
+        "Recall": round(recall,3),
+        "F1-Score": round(f1,3),
+        "MCC": round(mcc,3),
+        "ROC AUC": round(roc_auc,3),
+        "PRC AUC": round(prc_auc,3),
+        "TP Rate": round(tp / (tp + fn),3),
+        "FP Rate": round(fp / (fp + tn),3)
+    }
+
+    return metrics_data
+
+
+
+# function to plot table of metrics
+
+def create_metrics_table(metrics):
+    
+    num_metrics = len(metrics) + 1
+    num_cols = len(metrics[0])
+
+    fig, ax = plt.subplots(figsize=(26, num_metrics+2 / 2))
+
+    ax.set_frame_on(False)
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+
+    table_data = [list(row.values()) for row in metrics]
+    header = list(metrics[0].keys())
+    table = ax.table(cellText=table_data, cellLoc='center', loc='center', 
+                     colLabels=header, bbox=[0, 0, 1, 1], colWidths=[8,3,3,3,3,3,3,3,3,3,3])
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(20)
+
+    plt.show()
