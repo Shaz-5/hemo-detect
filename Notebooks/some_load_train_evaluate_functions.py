@@ -55,6 +55,8 @@ import pickle
 
 from pandas.plotting import table
 
+import shap
+
 from IPython.display import clear_output
 import warnings
 warnings.filterwarnings("ignore")
@@ -787,3 +789,39 @@ def create_metrics_table(metrics):
     table.set_fontsize(20)
 
     plt.show()
+    
+
+# --------------------------------------------EXPLAINABILITY------------------------------------------------------
+
+    
+# calculate shap values for a single row
+
+def shap_explain_instance(model,instance, columns, matplotlib=True):
+    
+    explainer = shap.TreeExplainer(model)
+    instance = instance.values.reshape(1, -1)
+    shap_values = explainer.shap_values(instance)
+    shap.initjs()
+    
+    return shap.force_plot(explainer.expected_value, shap_values, instance, 
+                           feature_names=columns, matplotlib=matplotlib)
+
+
+# calculate shap_values for all rows
+
+def shap_summary_plot(model, instances, plot_type='bar'):
+    
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(instances.values)
+
+    return shap.summary_plot(shap_values, instances, plot_type=plot_type)
+
+
+# calculate shap_values for all rows with more detail
+
+def shap_dependence_contribution_plot(model, instances, feature):
+    
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(instances.values)
+
+    return shap.dependence_plot(feature, shap_values, instances)
