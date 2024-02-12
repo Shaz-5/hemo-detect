@@ -56,6 +56,7 @@ import pickle
 from pandas.plotting import table
 
 import shap
+from sklearn.inspection import permutation_importance
 
 from IPython.display import clear_output
 import warnings
@@ -793,7 +794,25 @@ def create_metrics_table(metrics):
 
 # --------------------------------------------EXPLAINABILITY------------------------------------------------------
 
+
+
+# permutation importance
+
+def get_permutation_importances(model, X_test, y_test, n_repeats=10, random_state=42):
     
+    result = permutation_importance(model, X_test, y_test, n_repeats=n_repeats, random_state=random_state)
+
+    feature_names = X_test.columns
+    importances = result.importances_mean
+
+    perm_importance_df = pd.DataFrame({"Feature": feature_names, "Permutation_Importance": importances})
+
+    perm_importance_df = perm_importance_df.sort_values(by="Permutation_Importance", ascending=False)
+    
+    return perm_importance_df
+
+
+
 # calculate shap values for a single row
 
 def shap_explain_instance(model,instance, columns, matplotlib=True):
