@@ -54,6 +54,7 @@ import joblib
 import pickle
 
 from pandas.plotting import table
+from tqdm import tqdm
 
 import shap
 from sklearn.inspection import permutation_importance
@@ -399,7 +400,7 @@ def svc_lasso_select(X_train, y_train, C=1.0):
     # Get feature importance coefficients from the SVM model
     feature_importance = svc.coef_[0]
 
-    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X.columns, feature_importance)]
+    feature_importance_pairs = [(feature, importance) for feature, importance in zip(X_train.columns, feature_importance)]
     feature_importance_pairs.sort(key=lambda x: abs(x[1]), reverse=True)
 
     sorted_features = [feature for feature, _ in feature_importance_pairs]
@@ -443,7 +444,7 @@ def plot_num_feature_performance(model, X, y, feature_set, cv=10, scoring='accur
     num_features_list = []
     accuracy_list = []
     
-    for num_features in range(5, len(feature_set) + 1):
+    for num_features in tqdm(range(5, len(feature_set) + 1), desc='Finding optimal no. of features..'):
 
         X_subset = X[feature_set[:num_features]]
 
