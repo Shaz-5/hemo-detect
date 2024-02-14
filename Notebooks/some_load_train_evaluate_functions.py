@@ -599,9 +599,9 @@ def optuna_optimize(objective, model, n_trials=100,direction='maximum',n_jobs=-1
     clear_output()
     
     best_trial = study.best_trial.params
-    log_reg_opt = model(**best_trial)
+    model_opt = model(**best_trial)
     
-    return best_trial, log_reg_opt
+    return best_trial, model_opt
 
 
 # -----------------------------------------CROSS VALIDATION------------------------------------------------------
