@@ -429,12 +429,24 @@ def relief_feature_select(n,X,y,n_jobs=-1):
 # Random Forest Feature Importances
 
 def get_rand_forest_features(model, X_train):
-    random_forest_features = ml.pd.DataFrame(model.feature_importances_, index=X_train.columns,
+    random_forest_features = pd.DataFrame(model.feature_importances_, index=X_train.columns,
                                              columns=['Importance'])
     random_forest_features = random_forest_features.sort_values('Importance', ascending=False)
     random_forest_features = list(random_forest_features.index)
     
     return random_forest_features
+
+
+# XG Boost Feature Importances
+
+def get_xgb_features(model, X_train):
+    
+    xgb_features = pd.DataFrame(model.feature_importances_, index=X_train.columns,
+                                             columns=['Importance'])
+    xgb_features = xgb_features.sort_values('Importance', ascending=False)
+    xgb_features = list(xgb_features.index)
+    
+    return xgb_features
 
 
 # Find the optimal number of features for the model
