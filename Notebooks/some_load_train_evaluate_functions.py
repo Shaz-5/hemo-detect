@@ -828,7 +828,7 @@ def get_permutation_importances(model, X_test, y_test, n_repeats=10, random_stat
 
 # calculate shap values for a single row
 
-def shap_explain_instance(model,instance, columns, matplotlib=True):
+def shap_explain_instance(model,instance, columns, matplotlib=False):
     
     explainer = shap.TreeExplainer(model)
     instance = instance.values.reshape(1, -1)
